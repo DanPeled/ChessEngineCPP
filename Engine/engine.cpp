@@ -3,6 +3,13 @@
 #include <string>
 #include <cstring>
 #include <cctype>
+
+const std::string Pieces::BISHOP = "Bishop";
+const std::string Pieces::ROOK = "Rook";
+const std::string Pieces::PAWN = "Pawn";
+const std::string Pieces::QUEEN = "Queen";
+const std::string Pieces::KING = "King";
+const std::string Pieces::KNIGHT = "Knight";
 void printBoard(std::string board[], int size)
 {
     std::cout << "  | A | B | C | D | E | F | G | H |" << std::endl;
@@ -74,22 +81,22 @@ std::string getPieceType(std::string piece)
     switch (toupper(piece[0]))
     {
     case 'R':
-        name = "Rook";
+        name = Pieces::ROOK;
         break;
     case 'P':
-        name = "Pawn";
+        name = Pieces::PAWN;
         break;
     case 'B':
-        name = "Bishop";
+        name = Pieces::BISHOP;
         break;
     case 'N':
-        name = "Knight";
+        name = Pieces::KNIGHT;
         break;
     case 'K':
-        name = "King";
+        name = Pieces::KING;
         break;
     case 'Q':
-        name = "Queen";
+        name = Pieces::QUEEN;
         break;
     }
     return name;
@@ -125,8 +132,11 @@ bool eatsPiece(std::string board[], int from, int to)
     char placedPos = board[to][0];
     return (!isSpotEmpty(board, to));
 }
-int* getPossibleMoves(std::string board[], int from)
+int *getPossibleMoves(std::string board[], int from)
 {
     // TODO: make logic
+    std::string piece = board[from];
+    std::string pieceType = getPieceType(piece);
+
     return 0;
 }
