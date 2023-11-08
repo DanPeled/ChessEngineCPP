@@ -27,7 +27,7 @@ int main()
 	std::string from, to;
 	while (true)
 	{
-		cout << "Enter Board Position: ";
+		cout << "  Enter Board Positions: ";
 		cin >> from;
 		if (from == "exit")
 		{
@@ -50,7 +50,7 @@ int main()
 			}
 			else
 			{
-				cout << "Invalid position entered." << endl;
+				cout << "  Invalid position entered." << endl;
 			}
 		}
 	}
@@ -112,15 +112,29 @@ void makeMove(int from, int to)
 	{
 		if (eatsPiece(from, to))
 		{
+			cout << endl
+				 << "  "
+				 << getPieceName(board[from])
+				 << " Ate " << getPieceName(board[to]) << endl
+				 << endl;
 			board[to] = "\0 ";
 		}
 		switchArrayItems(board, from, to);
 		printBoard(board, BOARD_SIZE);
 	}
+	else
+	{
+		cout << "Invalid move." << endl;
+	}
 }
 bool validateMove(int from, int to)
 {
-	return true; // TODO: Implement logic :D (Not fun?)
+	bool valid = true;
+	if (board[from][0] == '\0')
+	{
+		valid = false;
+	}
+	return valid; // TODO: Implement logic :D (Not fun?)
 }
 bool eatsPiece(int from, int to)
 {

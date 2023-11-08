@@ -69,3 +69,37 @@ void initBoard(std::string board[], std::string pieces)
         board[boardIndex] = "";
     }
 }
+std::string getPieceName(std::string piece)
+{
+    if (piece.empty())
+    {
+        return "Invalid";
+    }
+
+    std::string prefix = (isupper(piece[0])) ? "Black " : "White ";
+    std::string name = "Invalid";
+
+    switch (toupper(piece[0]))
+    {
+    case 'R':
+        name = "Rook";
+        break;
+    case 'P':
+        name = "Pawn";
+        break;
+    case 'B':
+        name = "Bishop";
+        break;
+    case 'N':
+        name = "Knight";
+        break;
+    case 'K':
+        name = "King";
+        break;
+    case 'Q':
+        name = "Queen";
+        break;
+    }
+
+    return prefix + name;
+}
