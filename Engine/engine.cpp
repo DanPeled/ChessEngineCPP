@@ -1,6 +1,8 @@
 #include "engine.h"
 #include <iostream>
 #include <string>
+#include <cstring>
+#include <cctype>
 
 void printBoard(std::string board[], int size)
 {
@@ -20,7 +22,8 @@ void printBoard(std::string board[], int size)
         }
         else
         {
-            std::cout << " " << board[i] << " |";
+            std::cout << " " << (isupper(board[i][0]) ? "\033[31;1m" : "\033[1m") << board[i] << "\033[0m"
+                      << " |";
         }
 
         if (i % 8 == 7)
@@ -37,9 +40,9 @@ void initBoard(std::string board[], std::string pieces)
 
     for (int i = 0; i < pieces.length(); i++)
     {
-        if (isdigit(pieces[i]))
+        if (isdigit(pieces[i]) || pieces[i] == 'd')
         {
-            int num = pieces[i] - '0';
+            int num = isdigit(pieces[i]) ? pieces[i] - '0' : (pieces[i] == 'd' ? 8 : 0);
             // Fill multiple board positions with empty strings
             for (int j = 0; j < num; j++)
             {

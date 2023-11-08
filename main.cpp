@@ -1,16 +1,19 @@
 #include "Util/util.h"
 #include "Engine/engine.h"
 #include <iostream>
+#include <cctype>
 #include <string>
+#include <cstring>
+using namespace std;
 
 template <typename T, size_t N>
 int getArraySize(T (&array)[N]);
 template <typename T, size_t N>
 void switchArrayItems(T (&array)[N], int pos1, int pos2);
-int convertMove(int x, int y);
+int convertMove(std::string pos);
 void makeMove(int from, int to);
-using namespace std;
-
+bool validateMove(int from, int to);
+bool eatsPiece(int from, int to);
 // Constants
 
 // Function prototypes
@@ -21,29 +24,37 @@ int main()
 	string pieces = DEFAULT_BOARD;
 	initBoard(board, pieces); // Initialize the board with empty strings
 	printBoard(board, BOARD_SIZE);
-	int fromX, fromY;
-	int toX, toY;
+	std::string from, to;
 	while (true)
 	{
 		cout << "Enter Board Position: ";
-		cin >> fromX >> fromY;
-		cin >> toX >> toY;
-		int boardPosIndex = -1;
+		cin >> from;
+		if (from == "exit")
+		{
+			break; // Exit the loop when "exit" is entered
+		}
+
+		cin >> to;
+
+		int fromPosIndex = -1;
 		int toPosIndex = -1;
-		if (inRange(fromX - 1, 0, 8) && inRange(fromY - 1, 0, 8))
+
+		fromPosIndex = convertMove(from);
+		toPosIndex = convertMove(to);
+
+		if (fromPosIndex != -1)
 		{
-			boardPosIndex = convertMove(fromX, fromY);
-			toPosIndex = convertMove(toX, toY);
-		}
-		else
-		{
-			cout << "Invalid position entered." << endl;
-		}
-		if (boardPosIndex != -1)
-		{
-			makeMove(boardPosIndex, toPosIndex);
+			if (inRange(fromPosIndex, 0, 64) && inRange(toPosIndex, 0, 64) && from.length() == 2 && to.length() == 2)
+			{
+				makeMove(fromPosIndex, toPosIndex);
+			}
+			else
+			{
+				cout << "Invalid position entered." << endl;
+			}
 		}
 	}
+
 	return 0;
 }
 
@@ -60,13 +71,60 @@ void switchArrayItems(T (&array)[N], int pos1, int pos2)
 	array[pos1] = array[pos2];
 	array[pos2] = temp;
 }
-int convertMove(int x, int y)
+int convertMove(string pos)
 {
-	return twoDIndexTo1D(x - 1, y - 1, 8);
+	char x = toupper(pos[1]);
+	int y = pos[0] - '0';
+	int xPos = 1;
+	switch (x)
+	{
+	case 'A':
+		xPos = 1;
+		break;
+	case 'B':
+		xPos = 2;
+		break;
+	case 'C':
+		xPos = 3;
+		break;
+	case 'D':
+		xPos = 4;
+		break;
+	case 'E':
+		xPos = 5;
+		break;
+	case 'F':
+		xPos = 6;
+		break;
+	case 'G':
+		xPos = 7;
+		break;
+	case 'H':
+		xPos = 8;
+		break;
+	}
+	return twoDIndexTo1D(xPos - 1, y - 1, 8);
 }
 void makeMove(int from, int to)
 {
-	// TODO : validate move
-	switchArrayItems(board, from, to);
-	printBoard(board, BOARD_SIZE);
+	// validate move
+	if (validateMove(from, to))
+	{
+		if (eatsPiece(from, to))
+		{
+			board[to] = "\0 ";
+		}
+		switchArrayItems(board, from, to);
+		printBoard(board, BOARD_SIZE);
+	}
+}
+bool validateMove(int from, int to)
+{
+	return true; // TODO: Implement logic :D (Not fun?)
+}
+bool eatsPiece(int from, int to)
+{
+	char movedPiece = board[from][0];
+	char placedPos = board[to][0];
+	return (placedPos != '\0');
 }
