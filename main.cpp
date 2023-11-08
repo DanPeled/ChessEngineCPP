@@ -13,7 +13,6 @@ void switchArrayItems(T (&array)[N], int pos1, int pos2);
 int convertMove(std::string pos);
 void makeMove(int from, int to);
 bool validateMove(int from, int to);
-bool eatsPiece(int from, int to);
 // Constants
 
 // Function prototypes
@@ -108,9 +107,9 @@ int convertMove(string pos)
 void makeMove(int from, int to)
 {
 	// validate move
-	if (validateMove(from, to))
+	if (validateMove(board, from, to))
 	{
-		if (eatsPiece(from, to))
+		if (eatsPiece(board,from, to))
 		{
 			cout << endl
 				 << "  "
@@ -126,19 +125,4 @@ void makeMove(int from, int to)
 	{
 		cout << "Invalid move." << endl;
 	}
-}
-bool validateMove(int from, int to)
-{
-	bool valid = true;
-	if (board[from][0] == '\0')
-	{
-		valid = false;
-	}
-	return valid; // TODO: Implement logic :D (Not fun?)
-}
-bool eatsPiece(int from, int to)
-{
-	char movedPiece = board[from][0];
-	char placedPos = board[to][0];
-	return (placedPos != '\0');
 }

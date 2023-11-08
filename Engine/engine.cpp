@@ -3,7 +3,6 @@
 #include <string>
 #include <cstring>
 #include <cctype>
-
 void printBoard(std::string board[], int size)
 {
     std::cout << "  | A | B | C | D | E | F | G | H |" << std::endl;
@@ -102,4 +101,28 @@ std::string getPieceName(std::string piece)
     }
 
     return prefix + name;
+}
+bool isSpotEmpty(std::string board[], int pos)
+{
+    return board[pos][0] == '\0';
+}
+bool validateMove(std::string board[], int from, int to)
+{
+    bool valid = true;
+    if (isSpotEmpty(board, from))
+    {
+        valid = false;
+    }
+    return valid; // TODO: Implement logic :D (Not fun?)
+}
+bool eatsPiece(std::string board[], int from, int to)
+{
+    char movedPiece = board[from][0];
+    char placedPos = board[to][0];
+    return (!isSpotEmpty(board, to));
+}
+int getPossibleMoves[](std::string board[], int from)
+{
+    // TODO: make logic
+    return 0;
 }
