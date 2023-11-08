@@ -68,16 +68,9 @@ void initBoard(std::string board[], std::string pieces)
         board[boardIndex] = "";
     }
 }
-std::string getPieceName(std::string piece)
+std::string getPieceType(std::string piece)
 {
-    if (piece.empty())
-    {
-        return "Invalid";
-    }
-
-    std::string prefix = (isupper(piece[0])) ? "Black " : "White ";
     std::string name = "Invalid";
-
     switch (toupper(piece[0]))
     {
     case 'R':
@@ -99,6 +92,17 @@ std::string getPieceName(std::string piece)
         name = "Queen";
         break;
     }
+    return name;
+}
+std::string getPieceName(std::string piece)
+{
+    if (piece.empty())
+    {
+        return "Invalid";
+    }
+
+    std::string prefix = (isupper(piece[0])) ? "Black " : "White ";
+    std::string name = getPieceType(piece);
 
     return prefix + name;
 }
@@ -121,7 +125,7 @@ bool eatsPiece(std::string board[], int from, int to)
     char placedPos = board[to][0];
     return (!isSpotEmpty(board, to));
 }
-int getPossibleMoves[](std::string board[], int from)
+int* getPossibleMoves(std::string board[], int from)
 {
     // TODO: make logic
     return 0;
