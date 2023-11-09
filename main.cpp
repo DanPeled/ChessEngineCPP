@@ -12,7 +12,8 @@ template <typename T, size_t N>
 void switchArrayItems(T (&array)[N], int pos1, int pos2);
 int convertMove(std::string pos);
 void makeMove(int from, int to);
-bool validateMove(int from, int to);
+int turnNum = 0;
+bool whitesTurn = true;
 // Constants
 
 // Function prototypes
@@ -26,7 +27,8 @@ int main()
 	std::string from, to;
 	while (true)
 	{
-		cout << "  Enter Board Positions: ";
+		cout << endl
+			 << "   Enter Board Positions: ";
 		cin >> from;
 		if (from == "exit")
 		{
@@ -107,9 +109,9 @@ int convertMove(string pos)
 void makeMove(int from, int to)
 {
 	// validate move
-	if (validateMove(board, from, to))
+	if (validateMove(board, from, to, turnNum))
 	{
-		if (eatsPiece(board,from, to))
+		if (eatsPiece(board, from, to))
 		{
 			cout << endl
 				 << "  "
@@ -120,9 +122,13 @@ void makeMove(int from, int to)
 		}
 		switchArrayItems(board, from, to);
 		printBoard(board, BOARD_SIZE);
+		turnNum++;
+		whitesTurn = !whitesTurn;
 	}
 	else
 	{
-		cout << "Invalid move." << endl;
+		cout << endl
+			 << "	Invalid move." << endl
+			 << endl;
 	}
 }
