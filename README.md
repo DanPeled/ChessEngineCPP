@@ -10,6 +10,10 @@ The code starts by initializing the board, using stringified plotting, going eac
 # Game Loop
 ## Getting user Input
 The game loop starts by getting the user input in the form of <from> <to> e.g 1a 2a which translates to moving the piece on 1a and moving it to 2a.
+### Keywords
+- `exit` - Stops the game.
+- `show <pos>` - Shows the possible moves of the piece on the given position, e.g 2b in the start of the game will result in this: </br>
+<img src="" />
 ## Moving the pieces
 The code gets the user input, checks wheter the from spot is empty and if the positions are inside of the board (Checking if the movement is valid), if it isn't then it gets back to getting the user input, if it is valid, it does the following steps (`makeMove()`): 
 - Check if the positions are valid : </br>
