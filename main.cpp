@@ -45,7 +45,9 @@ int main()
 
 		if (fromPosIndex != -1)
 		{
-			if (inRange(fromPosIndex, 0, 64) && inRange(toPosIndex, 0, 64) && from.length() == 2 && to.length() == 2)
+			if (inRange(fromPosIndex, 0, 64) &&
+				inRange(toPosIndex, 0, 64) &&
+				from.length() == 2 && to.length() == 2)
 			{
 				makeMove(fromPosIndex, toPosIndex);
 			}

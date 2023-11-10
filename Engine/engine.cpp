@@ -30,7 +30,7 @@ void printBoard(std::string board[], int size, bool whitesTurn)
         }
         else
         {
-            std::cout << " " << (isupper(board[i][0]) ? "\033[31;1m" : "\033[1m") << board[i] << "\033[0m"
+            std::cout << " " << (isupper(board[i][0]) ? "\033[1m\033[30m" : "\033[1m") << board[i] << "\033[0m"
                       << " |";
         }
 
