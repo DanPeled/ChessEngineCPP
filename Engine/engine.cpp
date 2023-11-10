@@ -12,7 +12,7 @@ const std::string Pieces::KING = "King";
 const std::string Pieces::KNIGHT = "Knight";
 std::vector<int> generateRookMovements(std::string board[], int from);
 std::vector<int> generateBishopMovements(std::string board[], int from);
-void printBoard(std::string board[], int size)
+void printBoard(std::string board[], int size, bool whitesTurn)
 {
     std::cout << "  | A | B | C | D | E | F | G | H |" << std::endl;
     std::cout << "  |___|___|___|___|___|___|___|___|" << std::endl;
@@ -37,7 +37,12 @@ void printBoard(std::string board[], int size)
         if (i % 8 == 7)
         {
             std::cout << " " << (i / 8) + 1 << std::endl;
-            std::cout << "  |___|___|___|___|___|___|___|___|" << std::endl;
+            std::cout << "  |___|___|___|___|___|___|___|___|";
+            if (i == 31)
+            {
+                std::cout << (whitesTurn ? "        White's Turn" : "       Black's Turn");
+            }
+            std::cout << std::endl;
         }
     }
 }
@@ -124,7 +129,14 @@ bool validateMove(std::string board[], int from, int to, int turnNum)
     std::vector<int> possibleMoves = getPossibleMoves(board, from, turnNum);
     bool valid = true;
     bool toExistsInPossibleMoves = false;
-
+    if (isupper(board[from][0]) && turnNum % 2 == 0)
+    {
+        return false;
+    }
+    if (!isupper(board[from][0]) && turnNum % 2 != 0)
+    {
+        return false;
+    }
     for (int move : possibleMoves)
     {
         if (to == move)
@@ -231,7 +243,6 @@ std::vector<int> getPossibleMoves(std::string board[], int from, int turnNum)
     }
     else if (piece == Pieces::KNIGHT)
     {
-        std::vector<int> possibleMoves;
         int x = from % 8;
         int y = from / 8;
 
@@ -246,13 +257,14 @@ std::vector<int> getPossibleMoves(std::string board[], int from, int turnNum)
 
             if (to >= 0 && to < BOARD_SIZE)
             {
-                if (!isSpotSelfColor(board, from, to))
+                if (isSpotEmpty(board, to) || isSpotEnemy(board, from, to))
                 {
                     possibleMoves.push_back(to);
                 }
             }
         }
     }
+
     else if (piece == Pieces::QUEEN)
     {
         std::vector<int> bishopMovements = generateBishopMovements(board, from);

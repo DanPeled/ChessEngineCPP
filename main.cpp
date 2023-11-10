@@ -23,7 +23,7 @@ int main()
 {
 	string pieces = DEFAULT_BOARD;
 	initBoard(board, pieces); // Initialize the board with empty strings
-	printBoard(board, BOARD_SIZE);
+	printBoard(board, BOARD_SIZE, whitesTurn);
 	std::string from, to;
 	while (true)
 	{
@@ -121,9 +121,9 @@ void makeMove(int from, int to)
 			board[to] = "\0 ";
 		}
 		switchArrayItems(board, from, to);
-		printBoard(board, BOARD_SIZE);
-		turnNum++;
 		whitesTurn = !whitesTurn;
+		turnNum++;
+		printBoard(board, BOARD_SIZE, whitesTurn);
 	}
 	else
 	{
