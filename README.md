@@ -13,7 +13,10 @@ The game loop starts by getting the user input in the form of <from> <to> e.g 1a
 ### Keywords
 - `exit` - Stops the game.
 - `show <pos>` - Shows the possible moves of the piece on the given position, e.g 2b in the start of the game will result in this: </br>
-<img src="" />
+<picture>
+<img src="https://raw.githubusercontent.com/DanPeled/ChessEngineCPP/main/README%20FILES/ShowKeyword.png" width="444.66666666666666666666666666667" height="338"/>
+</picture> </br> </br>
+
 ## Moving the pieces
 The code gets the user input, checks wheter the from spot is empty and if the positions are inside of the board (Checking if the movement is valid), if it isn't then it gets back to getting the user input, if it is valid, it does the following steps (`makeMove()`): 
 - Check if the positions are valid : </br>
