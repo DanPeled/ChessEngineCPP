@@ -3,7 +3,7 @@
 > A chess game desgined in the C++ programming language
 # Init
 The code starts by initializing the board, using stringified plotting, going each character and plotting the right piece on the board for it, the basic board string is `rnbqkbnrppppppppddddPPPPPPPPRNBQKBNR`, which places a Rook (`r`), a Knight (`n`), a Bishop (`b`), a Queen (`q`), a King (`k`), the player's pawns, goes down 4 rows (`dddd`), and puts the others for the other player.
-<img src="https://raw.githubusercontent.com/DanPeled/ChessEngineCPP/main/README%20FILES/StartBoard.png" width="150" height="150"/>
+<img src="https://raw.githubusercontent.com/DanPeled/ChessEngineCPP/main/README%20FILES/StartBoard.png" width="458.66666666666666666666666666667" height="328"/>
 # Game Loop
 ## Getting user Input
 The game loop starts by getting the user input in the form of <from> <to> e.g 1a 2a which translates to moving the piece on 1a and moving it to 2a.
