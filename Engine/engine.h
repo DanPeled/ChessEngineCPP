@@ -2,8 +2,9 @@
 #include <string>
 #include <vector>
 const int BOARD_SIZE = 64;
+/// @brief Uppercase - BLACK Lowercase - WHITE
 const std::string DEFAULT_BOARD = "rnbqkbnrppppppppddddPPPPPPPPRNBQKBNR";
-void printBoard(std::string board[], int size, bool whitesTurn);
+void printBoard(std::string board[], bool whitesTurn);
 void initBoard(std::string board[], std::string pieces);
 std::string getPieceName(std::string piece);
 bool isSpotEmpty(std::string board[], int pos);
@@ -24,4 +25,4 @@ template <typename T>
 std::vector<T> combineVectors(std::vector<T> v1, std::vector<T> v2);
 bool isSpotSelfColor(std::string board[], int from, int to);
 bool isSpotEnemy(std::string board[], int from, int to);
-void printBoard(std::string board[], int size, bool whitesTurn, std::vector<int> highlighted);
+void printBoard(std::string board[], bool whitesTurn, std::vector<int> highlighted);

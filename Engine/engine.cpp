@@ -5,6 +5,7 @@
 #include <cctype>
 #include <vector>
 #include <algorithm>
+#include "../Util/colors.h"
 const std::string Pieces::BISHOP = "Bishop";
 const std::string Pieces::ROOK = "Rook";
 const std::string Pieces::PAWN = "Pawn";
@@ -13,12 +14,12 @@ const std::string Pieces::KING = "King";
 const std::string Pieces::KNIGHT = "Knight";
 std::vector<int> generateRookMovements(std::string board[], int from);
 std::vector<int> generateBishopMovements(std::string board[], int from);
-void printBoard(std::string board[], int size, bool whitesTurn, std::vector<int> highlighted)
+void printBoard(std::string board[], bool whitesTurn, std::vector<int> highlighted)
 {
     std::cout << "  | A | B | C | D | E | F | G | H |" << std::endl;
     std::cout << "  |___|___|___|___|___|___|___|___|" << std::endl;
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < BOARD_SIZE; i++)
     {
         if (i % 8 == 0)
         {
@@ -29,7 +30,7 @@ void printBoard(std::string board[], int size, bool whitesTurn, std::vector<int>
         {
             if (std::find(highlighted.begin(), highlighted.end(), i) != highlighted.end())
             {
-                std::cout << "\033[42m   \033[0m|";
+                std::cout << BG_GREEN << "   " << RESET << "|";
             }
             else
             {
@@ -40,12 +41,12 @@ void printBoard(std::string board[], int size, bool whitesTurn, std::vector<int>
         {
             if (std::find(highlighted.begin(), highlighted.end(), i) != highlighted.end())
             {
-                std::cout << "\033[42m " << (isupper(board[i][0]) ? "\033[1m\033[30m" : "\033[1m") << board[i]
-                          << " \033[0m|";
+                std::cout << BG_GREEN << " " << (isupper(board[i][0]) ? BOLDBLACK : BOLDWHITE) << board[i]
+                          << " " << RESET << "|";
             }
             else
             {
-                std::cout << " " << (isupper(board[i][0]) ? "\033[1m\033[30m" : "\033[1m") << board[i] << "\033[0m"
+                std::cout << " " << (isupper(board[i][0]) ? BOLDBLACK : BOLDWHITE) << board[i] << RESET
                           << " |";
             }
         }
@@ -62,10 +63,10 @@ void printBoard(std::string board[], int size, bool whitesTurn, std::vector<int>
         }
     }
 }
-void printBoard(std::string board[], int size, bool whitesTurn)
+void printBoard(std::string board[], bool whitesTurn)
 {
     std::vector<int> highlighted;
-    printBoard(board, size, whitesTurn, highlighted);
+    printBoard(board, whitesTurn, highlighted);
 }
 void initBoard(std::string board[], std::string pieces)
 {
@@ -493,4 +494,44 @@ bool isSpotSelfColor(std::string board[], int from, int to)
         return false;
     };
     return isSpotEnemy(board, from, to);
+}
+bool isWhiteChecked(std::string board[])
+{
+    int whiteKingPos = -1;
+
+    // Find the position of the white king
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        if (board[i] == "k")
+        {
+            whiteKingPos = i;
+            break;
+        }
+    }
+
+    // If the white king position is not found, something is wrong
+    if (whiteKingPos == -1)
+    {
+        std::cerr << "Error: White king not found on the board." << std::endl;
+        return false;
+    }
+
+    // Iterate through the board to check if any black piece can attack the white king
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        if (isupper(board[i][0])) // Check if the piece is black
+        {
+            std::vector<int> blackPieceMoves = getPossibleMoves(board, i, 0); // Assuming it's black's turn (turnNum % 2 == 1)
+
+            // Check if any move of the black piece is equal to the white king's position
+            if (std::find(blackPieceMoves.begin(), blackPieceMoves.end(), whiteKingPos) != blackPieceMoves.end())
+            {
+                // The white king is in check
+                return true;
+            }
+        }
+    }
+
+    // The white king is not in check
+    return false;
 }

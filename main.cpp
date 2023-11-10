@@ -19,12 +19,12 @@ bool showMode = false;
 
 // Function prototypes
 string board[BOARD_SIZE]; // Declare the board array
-
+string prevBoard[BOARD_SIZE];
 int main()
 {
 	string pieces = DEFAULT_BOARD;
 	initBoard(board, pieces); // Initialize the board with empty strings
-	printBoard(board, BOARD_SIZE, whitesTurn);
+	printBoard(board, whitesTurn);
 	std::string from, to;
 	while (true)
 	{
@@ -39,10 +39,10 @@ int main()
 		{
 			cin >> to;
 			int toPosIndex = convertMove(to);
-			printBoard(board, BOARD_SIZE, whitesTurn, getPossibleMoves(board, toPosIndex, turnNum));
+			std::vector<int> highlight = getPossibleMoves(board, toPosIndex, turnNum);
+			printBoard(board, whitesTurn, highlight);
 			continue;
 		}
-
 		cin >> to;
 
 		int fromPosIndex = -1;
@@ -130,10 +130,15 @@ void makeMove(int from, int to)
 				 << endl;
 			board[to] = "\0 ";
 		}
+		for (int i = 0; i < BOARD_SIZE; ++i)
+		{
+			prevBoard[i] = board[i];
+		}
+
 		switchArrayItems(board, from, to);
 		whitesTurn = !whitesTurn;
 		turnNum++;
-		printBoard(board, BOARD_SIZE, whitesTurn);
+		printBoard(board, whitesTurn);
 	}
 	else
 	{
