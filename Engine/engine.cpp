@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cctype>
 #include <vector>
+#include <algorithm>
 const std::string Pieces::BISHOP = "Bishop";
 const std::string Pieces::ROOK = "Rook";
 const std::string Pieces::PAWN = "Pawn";
@@ -12,7 +13,7 @@ const std::string Pieces::KING = "King";
 const std::string Pieces::KNIGHT = "Knight";
 std::vector<int> generateRookMovements(std::string board[], int from);
 std::vector<int> generateBishopMovements(std::string board[], int from);
-void printBoard(std::string board[], int size, bool whitesTurn)
+void printBoard(std::string board[], int size, bool whitesTurn, std::vector<int> highlighted)
 {
     std::cout << "  | A | B | C | D | E | F | G | H |" << std::endl;
     std::cout << "  |___|___|___|___|___|___|___|___|" << std::endl;
@@ -26,12 +27,27 @@ void printBoard(std::string board[], int size, bool whitesTurn)
 
         if (board[i] == "")
         {
-            std::cout << "   |"; // Print a blank space for an empty cell
+            if (std::find(highlighted.begin(), highlighted.end(), i) != highlighted.end())
+            {
+                std::cout << "\033[42m   \033[0m|";
+            }
+            else
+            {
+                std::cout << "   |"; // Print a blank space for an empty cell
+            }
         }
         else
         {
-            std::cout << " " << (isupper(board[i][0]) ? "\033[1m\033[30m" : "\033[1m") << board[i] << "\033[0m"
-                      << " |";
+            if (std::find(highlighted.begin(), highlighted.end(), i) != highlighted.end())
+            {
+                std::cout << "\033[42m " << (isupper(board[i][0]) ? "\033[1m\033[30m" : "\033[1m") << board[i]
+                          << " \033[0m|";
+            }
+            else
+            {
+                std::cout << " " << (isupper(board[i][0]) ? "\033[1m\033[30m" : "\033[1m") << board[i] << "\033[0m"
+                          << " |";
+            }
         }
 
         if (i % 8 == 7)
@@ -46,7 +62,11 @@ void printBoard(std::string board[], int size, bool whitesTurn)
         }
     }
 }
-
+void printBoard(std::string board[], int size, bool whitesTurn)
+{
+    std::vector<int> highlighted;
+    printBoard(board, size, whitesTurn, highlighted);
+}
 void initBoard(std::string board[], std::string pieces)
 {
     int boardIndex = 0; // Use a separate index for the board array
@@ -201,13 +221,14 @@ std::vector<int> getPossibleMoves(std::string board[], int from, int turnNum)
     }
     else if (piece == Pieces::PAWN)
     {
+        int y = from / 8;
         if (!isupper(board[from][0]))
         {
             if (from + 8 < BOARD_SIZE && isSpotEmpty(board, from + 8))
             {
                 possibleMoves.push_back(from + 8);
             }
-            if (turnNum == 0 && from + 16 < BOARD_SIZE && isSpotEmpty(board, from + 16))
+            if (y == 1 && from + 16 < BOARD_SIZE && isSpotEmpty(board, from + 16))
             {
                 possibleMoves.push_back(from + 16);
             }
@@ -226,7 +247,7 @@ std::vector<int> getPossibleMoves(std::string board[], int from, int turnNum)
             {
                 possibleMoves.push_back(from - 9);
             }
-            if (turnNum == 1 && from - 16 < BOARD_SIZE && isSpotEmpty(board, from - 16))
+            if (y == 6 && from - 16 < BOARD_SIZE && isSpotEmpty(board, from - 16))
             {
                 possibleMoves.push_back(from - 16);
             }
@@ -253,9 +274,11 @@ std::vector<int> getPossibleMoves(std::string board[], int from, int turnNum)
         {
             int dx = knightMoves[i][0];
             int dy = knightMoves[i][1];
-            int to = (y + dy) * 8 + (x + dx);
+            int toX = x + dx;
+            int toY = y + dy;
+            int to = toY * 8 + toX;
 
-            if (to >= 0 && to < BOARD_SIZE)
+            if (toX >= 0 && toX < 8 && toY >= 0 && toY < 8)
             {
                 if (isSpotEmpty(board, to) || isSpotEnemy(board, from, to))
                 {
@@ -286,64 +309,76 @@ std::vector<int> generateRookMovements(std::string board[], int from)
     for (int i = x + 1; i < 8; i++)
     {
         int to = y * 8 + i;
-        if (isSpotSelfColor(board, from, to))
+        if (!isSpotEmpty(board, to))
         {
-            possibleMoves.push_back(to);
-            break; // Stop when we encounter our own piece
-        }
-        possibleMoves.push_back(to);
-        if (isSpotEnemy(board, from, to))
-        {
+            if (isSpotSelfColor(board, from, to))
+            {
+                break; // Stop when we encounter our own piece
+            }
+            else if (isSpotEnemy(board, from, to))
+            {
+                possibleMoves.push_back(to);
+            }
             break; // Stop when we encounter an enemy piece
         }
+        possibleMoves.push_back(to);
     }
 
     // Check moves to the left
     for (int i = x - 1; i >= 0; i--)
     {
         int to = y * 8 + i;
-        if (isSpotSelfColor(board, from, to))
+        if (!isSpotEmpty(board, to))
         {
-            possibleMoves.push_back(to);
-            break; // Stop when we encounter our own piece
-        }
-        possibleMoves.push_back(to);
-        if (isSpotEnemy(board, from, to))
-        {
+            if (isSpotSelfColor(board, from, to))
+            {
+                break; // Stop when we encounter our own piece
+            }
+            else if (isSpotEnemy(board, from, to))
+            {
+                possibleMoves.push_back(to);
+            }
             break; // Stop when we encounter an enemy piece
         }
+        possibleMoves.push_back(to);
     }
 
     // Check moves upward
     for (int i = y + 1; i < 8; i++)
     {
         int to = i * 8 + x;
-        if (isSpotSelfColor(board, from, to))
+        if (!isSpotEmpty(board, to))
         {
-            possibleMoves.push_back(to);
-            break; // Stop when we encounter our own piece
-        }
-        possibleMoves.push_back(to);
-        if (isSpotEnemy(board, from, to))
-        {
+            if (isSpotSelfColor(board, from, to))
+            {
+                break; // Stop when we encounter our own piece
+            }
+            else if (isSpotEnemy(board, from, to))
+            {
+                possibleMoves.push_back(to);
+            }
             break; // Stop when we encounter an enemy piece
         }
+        possibleMoves.push_back(to);
     }
 
     // Check moves downward
     for (int i = y - 1; i >= 0; i--)
     {
         int to = i * 8 + x;
-        if (isSpotSelfColor(board, from, to))
+        if (!isSpotEmpty(board, to))
         {
-            possibleMoves.push_back(to);
-            break; // Stop when we encounter our own piece
-        }
-        possibleMoves.push_back(to);
-        if (isSpotEnemy(board, from, to))
-        {
+            if (isSpotSelfColor(board, from, to))
+            {
+                break; // Stop when we encounter our own piece
+            }
+            else if (isSpotEnemy(board, from, to))
+            {
+                possibleMoves.push_back(to);
+            }
             break; // Stop when we encounter an enemy piece
         }
+        possibleMoves.push_back(to);
     }
 
     return possibleMoves;
@@ -361,65 +396,76 @@ std::vector<int> generateBishopMovements(std::string board[], int from)
     for (int i = 1; x + i < 8 && y + i < 8; i++)
     {
         int to = (y + i) * 8 + (x + i);
-        if (isSpotSelfColor(board, from, to))
+        if (!isSpotEmpty(board, to))
         {
-            possibleMoves.push_back(to);
-            break; // Stop when we encounter our own piece
-        }
-        possibleMoves.push_back(to);
-        if (isSpotEnemy(board, from, to))
-        {
+            if (isSpotSelfColor(board, from, to))
+            {
+                break; // Stop when we encounter our own piece
+            }
+            else if (isSpotEnemy(board, from, to))
+            {
+                possibleMoves.push_back(to);
+            }
             break; // Stop when we encounter an enemy piece
         }
+        possibleMoves.push_back(to);
     }
     for (int i = 1; x - i >= 0 && y - i >= 0; i++)
     {
         int to = (y - i) * 8 + (x - i);
-        if (isSpotSelfColor(board, from, to))
+        if (!isSpotEmpty(board, to))
         {
-            possibleMoves.push_back(to);
-            break; // Stop when we encounter our own piece
-        }
-        possibleMoves.push_back(to);
-        if (isSpotEnemy(board, from, to))
-        {
+            if (isSpotSelfColor(board, from, to))
+            {
+                break; // Stop when we encounter our own piece
+            }
+            else if (isSpotEnemy(board, from, to))
+            {
+                possibleMoves.push_back(to);
+            }
             break; // Stop when we encounter an enemy piece
         }
+        possibleMoves.push_back(to);
     }
 
     // Diagonal (top-right to bottom-left)
     for (int i = 1; x + i < 8 && y - i >= 0; i++)
     {
         int to = (y - i) * 8 + (x + i);
-        if (isSpotSelfColor(board, from, to))
+        if (!isSpotEmpty(board, to))
         {
-            possibleMoves.push_back(to);
-            break; // Stop when we encounter our own piece
-        }
-        possibleMoves.push_back(to);
-        if (isSpotEnemy(board, from, to))
-        {
+            if (isSpotSelfColor(board, from, to))
+            {
+                break; // Stop when we encounter our own piece
+            }
+            else if (isSpotEnemy(board, from, to))
+            {
+                possibleMoves.push_back(to);
+            }
             break; // Stop when we encounter an enemy piece
         }
+        possibleMoves.push_back(to);
     }
     for (int i = 1; x - i >= 0 && y + i < 8; i++)
     {
         int to = (y + i) * 8 + (x - i);
-        if (isSpotSelfColor(board, from, to))
+        if (!isSpotEmpty(board, to))
         {
-            possibleMoves.push_back(to);
-            break; // Stop when we encounter our own piece
-        }
-        possibleMoves.push_back(to);
-        if (isSpotEnemy(board, from, to))
-        {
+            if (isSpotSelfColor(board, from, to))
+            {
+                break; // Stop when we encounter our own piece
+            }
+            else if (isSpotEnemy(board, from, to))
+            {
+                possibleMoves.push_back(to);
+            }
             break; // Stop when we encounter an enemy piece
         }
+        possibleMoves.push_back(to);
     }
 
     return possibleMoves;
 }
-
 template <typename T>
 std::vector<T> combineVectors(std::vector<T> v1, std::vector<T> v2)
 {

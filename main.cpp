@@ -14,6 +14,7 @@ int convertMove(std::string pos);
 void makeMove(int from, int to);
 int turnNum = 0;
 bool whitesTurn = true;
+bool showMode = false;
 // Constants
 
 // Function prototypes
@@ -33,6 +34,13 @@ int main()
 		if (from == "exit")
 		{
 			break; // Exit the loop when "exit" is entered
+		}
+		if (from == "show")
+		{
+			cin >> to;
+			int toPosIndex = convertMove(to);
+			printBoard(board, BOARD_SIZE, whitesTurn, getPossibleMoves(board, toPosIndex, turnNum));
+			continue;
 		}
 
 		cin >> to;

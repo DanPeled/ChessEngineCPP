@@ -24,3 +24,4 @@ template <typename T>
 std::vector<T> combineVectors(std::vector<T> v1, std::vector<T> v2);
 bool isSpotSelfColor(std::string board[], int from, int to);
 bool isSpotEnemy(std::string board[], int from, int to);
+void printBoard(std::string board[], int size, bool whitesTurn, std::vector<int> highlighted);
