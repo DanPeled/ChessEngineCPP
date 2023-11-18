@@ -1,11 +1,4 @@
 #include "engine.h"
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <cctype>
-#include <vector>
-#include <algorithm>
-#include "../Util/colors.h"
 const std::string Pieces::BISHOP = "Bishop";
 const std::string Pieces::ROOK = "Rook";
 const std::string Pieces::PAWN = "Pawn";
@@ -16,6 +9,7 @@ std::vector<int> generateRookMovements(std::string board[], int from);
 std::vector<int> generateBishopMovements(std::string board[], int from);
 void printBoard(std::string board[], bool whitesTurn, std::vector<int> highlighted)
 {
+    // SetConsoleOutputCP(CP_UTF8);
     std::cout << "  | A | B | C | D | E | F | G | H |" << std::endl;
     std::cout << "  |___|___|___|___|___|___|___|___|" << std::endl;
 
@@ -237,6 +231,10 @@ std::vector<int> getPossibleMoves(std::string board[], int from, int turnNum)
             {
                 possibleMoves.push_back(from + 9);
             }
+            if (from + 7 < BOARD_SIZE && isSpotSelfColor(board, from, from + 7))
+            {
+                possibleMoves.push_back(from + 7);
+            }
         }
         else
         {
@@ -247,6 +245,10 @@ std::vector<int> getPossibleMoves(std::string board[], int from, int turnNum)
             if (from - 9 < BOARD_SIZE && isSpotSelfColor(board, from, from - 9))
             {
                 possibleMoves.push_back(from - 9);
+            }
+            if (from - 7 < BOARD_SIZE && isSpotSelfColor(board, from, from - 7))
+            {
+                possibleMoves.push_back(from - 7);
             }
             if (y == 6 && from - 16 < BOARD_SIZE && isSpotEmpty(board, from - 16))
             {
@@ -467,6 +469,7 @@ std::vector<int> generateBishopMovements(std::string board[], int from)
 
     return possibleMoves;
 }
+
 template <typename T>
 std::vector<T> combineVectors(std::vector<T> v1, std::vector<T> v2)
 {
@@ -474,6 +477,7 @@ std::vector<T> combineVectors(std::vector<T> v1, std::vector<T> v2)
     temp.insert(temp.end(), v2.begin(), v2.end());
     return temp;
 }
+
 bool isSpotEnemy(std::string board[], int from, int to)
 {
     bool isEnemy = false;
@@ -495,7 +499,7 @@ bool isSpotSelfColor(std::string board[], int from, int to)
     };
     return isSpotEnemy(board, from, to);
 }
-bool isWhiteChecked(std::string board[])
+bool isWhiteChecked(std::string board[], int turnNum)
 {
     int whiteKingPos = -1;
 
@@ -521,7 +525,7 @@ bool isWhiteChecked(std::string board[])
     {
         if (isupper(board[i][0])) // Check if the piece is black
         {
-            std::vector<int> blackPieceMoves = getPossibleMoves(board, i, 0); // Assuming it's black's turn (turnNum % 2 == 1)
+            std::vector<int> blackPieceMoves = getPossibleMoves(board, i, 1); // Assuming it's black's turn (turnNum % 2 == 1)
 
             // Check if any move of the black piece is equal to the white king's position
             if (std::find(blackPieceMoves.begin(), blackPieceMoves.end(), whiteKingPos) != blackPieceMoves.end())
@@ -533,5 +537,46 @@ bool isWhiteChecked(std::string board[])
     }
 
     // The white king is not in check
+    return false;
+}
+
+bool isBlackChecked(std::string board[], int turnNum)
+{
+    int blackKingPos = -1;
+
+    // Find the position of the black king
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        if (board[i] == "K")
+        {
+            blackKingPos = i;
+            break;
+        }
+    }
+
+    // If the black king position is not found, something is wrong
+    if (blackKingPos == -1)
+    {
+        std::cerr << "Error: Black king not found on the board." << std::endl;
+        return false;
+    }
+
+    // Iterate through the board to check if any white piece can attack the black king
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        if (islower(board[i][0])) // Check if the piece is white
+        {
+            std::vector<int> whitePieceMoves = getPossibleMoves(board, i, 0); // Assuming it's white's turn (turnNum % 2 == 0)
+
+            // Check if any move of the white piece is equal to the black king's position
+            if (std::find(whitePieceMoves.begin(), whitePieceMoves.end(), blackKingPos) != whitePieceMoves.end())
+            {
+                // The black king is in check
+                return true;
+            }
+        }
+    }
+
+    // The black king is not in check
     return false;
 }
