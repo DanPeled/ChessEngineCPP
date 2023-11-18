@@ -2,7 +2,7 @@
 
 > A chess game desgined in the C++ programming language
 # Init
-The code starts by initializing the board, using FEN-like stringified plotting, going each character and plotting the right piece on the board for it, the basic board string is `rnbqkbnrppppppppddddPPPPPPPPRNBQKBNR`, which places a Rook (`r`), a Knight (`n`), a Bishop (`b`), a Queen (`q`), a King (`k`), the player's pawns, goes down 4 rows (`dddd`), and puts the others for the other player. </br></br>
+The code starts by initializing the board, using [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation#:~:text=Forsyth%E2%80%93Edwards%20Notation%20(FEN),Scottish%20newspaper%20journalist%20David%20Forsyth.)-like stringified plotting, going each character and plotting the right piece on the board for it, the basic board string is `rnbqkbnrppppppppddddPPPPPPPPRNBQKBNR`, which places a Rook (`r`), a Knight (`n`), a Bishop (`b`), a Queen (`q`), a King (`k`), the player's pawns, goes down 4 rows (`dddd`), and puts the others for the other player. </br></br>
 <picture>
 <img src="https://raw.githubusercontent.com/DanPeled/ChessEngineCPP/main/README%20FILES/StartBoard.png" width="458.66666666666666666666666666667" height="328" style="pointer-events: none;"/>
 </picture>
