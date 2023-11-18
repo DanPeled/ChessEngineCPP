@@ -1,15 +1,18 @@
 #include "engine.h"
 #include "../Game/game.h"
-const std::string Pieces::BISHOP = "Bishop";
-const std::string Pieces::ROOK = "Rook";
-const std::string Pieces::PAWN = "Pawn";
-const std::string Pieces::QUEEN = "Queen";
-const std::string Pieces::KING = "King";
-const std::string Pieces::KNIGHT = "Knight";
+using namespace Chess;
+const std::string Engine::Pieces::BISHOP = "Bishop";
+const std::string Engine::Pieces::ROOK = "Rook";
+const std::string Engine::Pieces::PAWN = "Pawn";
+const std::string Engine::Pieces::QUEEN = "Queen";
+const std::string Engine::Pieces::KING = "King";
+const std::string Engine::Pieces::KNIGHT = "Knight";
+const std::string Engine::DEFAULT_BOARD = "rnbqkbnrppppppppddddPPPPPPPPRNBQKBNR";
 std::vector<int> generateRookMovements(int from);
 std::vector<int> generateBishopMovements(int from);
 void copyStringArray(const std::string source[], std::string destination[], int size);
-void printBoard(bool whitesTurn, std::vector<int> highlighted)
+
+void Engine::printBoard(bool whitesTurn, std::vector<int> highlighted)
 {
     // SetConsoleOutputCP(CP_UTF8);
     std::cout << "  | A | B | C | D | E | F | G | H |" << std::endl;
@@ -22,7 +25,7 @@ void printBoard(bool whitesTurn, std::vector<int> highlighted)
             std::cout << " " << (i / 8) + 1 << "|";
         }
 
-        if (Game::board[i] == "")
+        if (Chess::Game::board[i] == "")
         {
             if (std::find(highlighted.begin(), highlighted.end(), i) != highlighted.end())
             {
@@ -37,12 +40,12 @@ void printBoard(bool whitesTurn, std::vector<int> highlighted)
         {
             if (std::find(highlighted.begin(), highlighted.end(), i) != highlighted.end())
             {
-                std::cout << BG_GREEN << " " << (isupper(Game::board[i][0]) ? BOLDBLACK : BOLDWHITE) << Game::board[i]
+                std::cout << BG_GREEN << " " << (isupper(Chess::Game::board[i][0]) ? BOLDBLACK : BOLDWHITE) << Chess::Game::board[i]
                           << " " << RESET << "|";
             }
             else
             {
-                std::cout << " " << (isupper(Game::board[i][0]) ? BOLDBLACK : BOLDWHITE) << Game::board[i] << RESET
+                std::cout << " " << (isupper(Chess::Game::board[i][0]) ? BOLDBLACK : BOLDWHITE) << Chess::Game::board[i] << RESET
                           << " |";
             }
         }
@@ -59,12 +62,12 @@ void printBoard(bool whitesTurn, std::vector<int> highlighted)
         }
     }
 }
-void printBoard(bool whitesTurn)
+void Engine::printBoard(bool whitesTurn)
 {
     std::vector<int> highlighted;
-    printBoard(whitesTurn, highlighted);
+    Engine::printBoard(whitesTurn, highlighted);
 }
-void initBoard(std::string pieces)
+void Engine::initBoard(std::string pieces)
 {
     int boardIndex = 0; // Use a separate index for the board array
 
@@ -78,7 +81,7 @@ void initBoard(std::string pieces)
             {
                 if (boardIndex < BOARD_SIZE)
                 {
-                    Game::board[boardIndex] = "";
+                    Chess::Game::board[boardIndex] = "";
                     boardIndex++;
                 }
             }
@@ -87,7 +90,7 @@ void initBoard(std::string pieces)
         {
             if (boardIndex < BOARD_SIZE)
             {
-                Game::board[boardIndex] = pieces[i];
+                Chess::Game::board[boardIndex] = pieces[i];
                 boardIndex++;
             }
         }
@@ -96,7 +99,7 @@ void initBoard(std::string pieces)
     // Fill any remaining positions with empty strings
     for (; boardIndex < BOARD_SIZE; boardIndex++)
     {
-        Game::board[boardIndex] = "";
+        Chess::Game::board[boardIndex] = "";
     }
 }
 std::string getPieceType(std::string piece)
@@ -105,22 +108,22 @@ std::string getPieceType(std::string piece)
     switch (toupper(piece[0]))
     {
     case 'R':
-        name = Pieces::ROOK;
+        name = Engine::Pieces::ROOK;
         break;
     case 'P':
-        name = Pieces::PAWN;
+        name = Engine::Pieces::PAWN;
         break;
     case 'B':
-        name = Pieces::BISHOP;
+        name = Engine::Pieces::BISHOP;
         break;
     case 'N':
-        name = Pieces::KNIGHT;
+        name = Engine::Pieces::KNIGHT;
         break;
     case 'K':
-        name = Pieces::KING;
+        name = Engine::Pieces::KING;
         break;
     case 'Q':
-        name = Pieces::QUEEN;
+        name = Engine::Pieces::QUEEN;
         break;
     }
     return name;
@@ -139,18 +142,18 @@ std::string getPieceName(std::string piece)
 }
 bool isSpotEmpty(int pos)
 {
-    return Game::board[pos][0] == '\0';
+    return Chess::Game::board[pos][0] == '\0';
 }
-bool validateMove(int from, int to, int turnNum)
+bool validateMove(int from, int to)
 {
-    std::vector<int> possibleMoves = getPossibleMoves(from, turnNum);
+    std::vector<int> possibleMoves = getPossibleMoves(from, Chess::Game::turnNum);
     bool valid = true;
     bool toExistsInPossibleMoves = false;
-    if (isupper(Game::board[from][0]) && turnNum % 2 == 0)
+    if (isupper(Chess::Game::board[from][0]) && Chess::Game::turnNum % 2 == 0)
     {
         return false;
     }
-    if (!isupper(Game::board[from][0]) && turnNum % 2 != 0)
+    if (!isupper(Chess::Game::board[from][0]) && Chess::Game::turnNum % 2 != 0)
     {
         return false;
     }
@@ -173,53 +176,53 @@ bool validateMove(int from, int to, int turnNum)
 
 bool eatsPiece(int from, int to)
 {
-    char movedPiece = Game::board[from][0];
-    char placedPos = Game::board[to][0];
+    char movedPiece = Chess::Game::board[from][0];
+    char placedPos = Chess::Game::board[to][0];
     return (!isSpotEmpty(to));
 }
 std::vector<int> getPossibleMoves(int from, int turnNum)
 {
     std::vector<int> possibleMoves;
-    std::string piece = getPieceType(Game::board[from]);
-    if (piece == Pieces::KING)
+    std::string piece = getPieceType(Chess::Game::board[from]);
+    if (piece == Engine::Pieces::KING)
     {
-        if (from + 8 < BOARD_SIZE && (isSpotEmpty(from + 8) || isSpotSelfColor(from, from + 8)))
+        if (from + 8 < BOARD_SIZE && (Engine::isSpotEmpty(from + 8) || Engine::isSpotSelfColor(from, from + 8)))
         {
             possibleMoves.push_back(from + 8);
         }
-        if (from - 8 >= 0 && (isSpotEmpty(from - 8) || isSpotSelfColor(from, from - 8)))
+        if (from - 8 >= 0 && (Engine::isSpotEmpty(from - 8) || Engine::isSpotSelfColor(from, from - 8)))
         {
             possibleMoves.push_back(from - 8);
         }
-        if (from % 8 != 7 && (isSpotEmpty(from + 1) || isSpotSelfColor(from, from + 1)))
+        if (from % 8 != 7 && (Engine::isSpotEmpty(from + 1) || Engine::isSpotSelfColor(from, from + 1)))
         {
             possibleMoves.push_back(from + 1);
         }
-        if (from % 8 != 0 && (isSpotEmpty(from - 1) || isSpotSelfColor(from, from - 1)))
+        if (from % 8 != 0 && (Engine::isSpotEmpty(from - 1) || Engine::isSpotSelfColor(from, from - 1)))
         {
             possibleMoves.push_back(from - 1);
         }
-        if (from + 7 < BOARD_SIZE && from % 8 != 0 && (isSpotEmpty(from + 7) || isSpotSelfColor(from, from + 7)))
+        if (from + 7 < BOARD_SIZE && from % 8 != 0 && (Engine::isSpotEmpty(from + 7) || Engine::isSpotSelfColor(from, from + 7)))
         {
             possibleMoves.push_back(from + 7);
         }
-        if (from - 7 >= 0 && from % 8 != 7 && (isSpotEmpty(from - 7) || isSpotSelfColor(from, from - 7)))
+        if (from - 7 >= 0 && from % 8 != 7 && (Engine::isSpotEmpty(from - 7) || Engine::isSpotSelfColor(from, from - 7)))
         {
             possibleMoves.push_back(from - 7);
         }
-        if (from + 9 < BOARD_SIZE && from % 8 != 7 && (isSpotEmpty(from + 9) || isSpotSelfColor(from, from + 9)))
+        if (from + 9 < BOARD_SIZE && from % 8 != 7 && (Engine::isSpotEmpty(from + 9) || Engine::isSpotSelfColor(from, from + 9)))
         {
             possibleMoves.push_back(from + 9);
         }
-        if (from - 9 >= 0 && from % 8 != 0 && (isSpotEmpty(from - 9) || isSpotSelfColor(from, from - 9)))
+        if (from - 9 >= 0 && from % 8 != 0 && (Engine::isSpotEmpty(from - 9) || Engine::isSpotSelfColor(from, from - 9)))
         {
             possibleMoves.push_back(from - 9);
         }
     }
-    else if (piece == Pieces::PAWN)
+    else if (piece == Engine::Pieces::PAWN)
     {
         int y = from / 8;
-        if (!isupper(Game::board[from][0]))
+        if (!isupper(Chess::Game::board[from][0]))
         {
             if (from + 8 < BOARD_SIZE && isSpotEmpty(from + 8))
             {
@@ -229,26 +232,26 @@ std::vector<int> getPossibleMoves(int from, int turnNum)
             {
                 possibleMoves.push_back(from + 16);
             }
-            if (from + 9 < BOARD_SIZE && isSpotSelfColor(from, from + 9))
+            if (from + 9 < BOARD_SIZE && Engine::isSpotSelfColor(from, from + 9))
             {
                 possibleMoves.push_back(from + 9);
             }
-            if (from + 7 < BOARD_SIZE && isSpotSelfColor(from, from + 7))
+            if (from + 7 < BOARD_SIZE && Engine::isSpotSelfColor(from, from + 7))
             {
                 possibleMoves.push_back(from + 7);
             }
         }
         else
         {
-            if (from - 8 < BOARD_SIZE && isSpotEmpty(from - 8))
+            if (from - 8 < BOARD_SIZE && Engine::isSpotEmpty(from - 8))
             {
                 possibleMoves.push_back(from - 8);
             }
-            if (from - 9 < BOARD_SIZE && isSpotSelfColor(from, from - 9))
+            if (from - 9 < BOARD_SIZE && Engine::isSpotSelfColor(from, from - 9))
             {
                 possibleMoves.push_back(from - 9);
             }
-            if (from - 7 < BOARD_SIZE && isSpotSelfColor(from, from - 7))
+            if (from - 7 < BOARD_SIZE && Engine::isSpotSelfColor(from, from - 7))
             {
                 possibleMoves.push_back(from - 7);
             }
@@ -258,16 +261,16 @@ std::vector<int> getPossibleMoves(int from, int turnNum)
             }
         }
     }
-    else if (piece == Pieces::ROOK)
+    else if (piece == Engine::Pieces::ROOK)
     {
         std::vector<int> positions = generateRookMovements(from);
         possibleMoves = positions;
     }
-    else if (piece == Pieces::BISHOP)
+    else if (piece == Engine::Pieces::BISHOP)
     {
         possibleMoves = generateBishopMovements(from);
     }
-    else if (piece == Pieces::KNIGHT)
+    else if (piece == Engine::Pieces::KNIGHT)
     {
         int x = from % 8;
         int y = from / 8;
@@ -285,7 +288,7 @@ std::vector<int> getPossibleMoves(int from, int turnNum)
 
             if (toX >= 0 && toX < 8 && toY >= 0 && toY < 8)
             {
-                if (isSpotEmpty(to) || isSpotEnemy(from, to))
+                if (Engine::isSpotEmpty(to) || Engine::isSpotEnemy(from, to))
                 {
                     possibleMoves.push_back(to);
                 }
@@ -293,7 +296,7 @@ std::vector<int> getPossibleMoves(int from, int turnNum)
         }
     }
 
-    else if (piece == Pieces::QUEEN)
+    else if (piece == Engine::Pieces::QUEEN)
     {
         std::vector<int> bishopMovements = generateBishopMovements(from);
         std::vector<int> rookMovements = generateRookMovements(from);
@@ -316,11 +319,11 @@ std::vector<int> generateRookMovements(int from)
         int to = y * 8 + i;
         if (!isSpotEmpty(to))
         {
-            if (isSpotSelfColor(from, to))
+            if (Engine::isSpotSelfColor(from, to))
             {
                 break; // Stop when we encounter our own piece
             }
-            else if (isSpotEnemy(from, to))
+            else if (Engine::isSpotEnemy(from, to))
             {
                 possibleMoves.push_back(to);
             }
@@ -335,11 +338,11 @@ std::vector<int> generateRookMovements(int from)
         int to = y * 8 + i;
         if (!isSpotEmpty(to))
         {
-            if (isSpotSelfColor(from, to))
+            if (Engine::isSpotSelfColor(from, to))
             {
                 break; // Stop when we encounter our own piece
             }
-            else if (isSpotEnemy(from, to))
+            else if (Engine::isSpotEnemy(from, to))
             {
                 possibleMoves.push_back(to);
             }
@@ -354,11 +357,11 @@ std::vector<int> generateRookMovements(int from)
         int to = i * 8 + x;
         if (!isSpotEmpty(to))
         {
-            if (isSpotSelfColor(from, to))
+            if (Engine::isSpotSelfColor(from, to))
             {
                 break; // Stop when we encounter our own piece
             }
-            else if (isSpotEnemy(from, to))
+            else if (Engine::isSpotEnemy(from, to))
             {
                 possibleMoves.push_back(to);
             }
@@ -373,11 +376,11 @@ std::vector<int> generateRookMovements(int from)
         int to = i * 8 + x;
         if (!isSpotEmpty(to))
         {
-            if (isSpotSelfColor(from, to))
+            if (Engine::isSpotSelfColor(from, to))
             {
                 break; // Stop when we encounter our own piece
             }
-            else if (isSpotEnemy(from, to))
+            else if (Engine::isSpotEnemy(from, to))
             {
                 possibleMoves.push_back(to);
             }
@@ -401,13 +404,13 @@ std::vector<int> generateBishopMovements(int from)
     for (int i = 1; x + i < 8 && y + i < 8; i++)
     {
         int to = (y + i) * 8 + (x + i);
-        if (!isSpotEmpty(to))
+        if (!Engine::isSpotEmpty(to))
         {
-            if (isSpotSelfColor(from, to))
+            if (Engine::isSpotSelfColor(from, to))
             {
                 break; // Stop when we encounter our own piece
             }
-            else if (isSpotEnemy(from, to))
+            else if (Engine::isSpotEnemy(from, to))
             {
                 possibleMoves.push_back(to);
             }
@@ -420,11 +423,11 @@ std::vector<int> generateBishopMovements(int from)
         int to = (y - i) * 8 + (x - i);
         if (!isSpotEmpty(to))
         {
-            if (isSpotSelfColor(from, to))
+            if (Engine::isSpotSelfColor(from, to))
             {
                 break; // Stop when we encounter our own piece
             }
-            else if (isSpotEnemy(from, to))
+            else if (Engine::isSpotEnemy(from, to))
             {
                 possibleMoves.push_back(to);
             }
@@ -439,11 +442,11 @@ std::vector<int> generateBishopMovements(int from)
         int to = (y - i) * 8 + (x + i);
         if (!isSpotEmpty(to))
         {
-            if (isSpotSelfColor(from, to))
+            if (Engine::isSpotSelfColor(from, to))
             {
                 break; // Stop when we encounter our own piece
             }
-            else if (isSpotEnemy(from, to))
+            else if (Engine::isSpotEnemy(from, to))
             {
                 possibleMoves.push_back(to);
             }
@@ -456,11 +459,11 @@ std::vector<int> generateBishopMovements(int from)
         int to = (y + i) * 8 + (x - i);
         if (!isSpotEmpty(to))
         {
-            if (isSpotSelfColor(from, to))
+            if (Engine::isSpotSelfColor(from, to))
             {
                 break; // Stop when we encounter our own piece
             }
-            else if (isSpotEnemy(from, to))
+            else if (Engine::isSpotEnemy(from, to))
             {
                 possibleMoves.push_back(to);
             }
@@ -473,42 +476,42 @@ std::vector<int> generateBishopMovements(int from)
 }
 
 template <typename T>
-std::vector<T> combineVectors(std::vector<T> v1, std::vector<T> v2)
+std::vector<T> Engine::combineVectors(std::vector<T> v1, std::vector<T> v2)
 {
     std::vector<T> temp = v1;
     temp.insert(temp.end(), v2.begin(), v2.end());
     return temp;
 }
 
-bool isSpotEnemy(int from, int to)
+bool Engine::isSpotEnemy(int from, int to)
 {
     bool isEnemy = false;
-    if (isupper(Game::board[from][0]) && !isupper(Game::board[to][0]))
+    if (isupper(Chess::Game::board[from][0]) && !isupper(Chess::Game::board[to][0]))
     {
         isEnemy = true;
     }
-    else if (!isupper(Game::board[from][0]) && isupper(Game::board[to][0]))
+    else if (!isupper(Chess::Game::board[from][0]) && isupper(Chess::Game::board[to][0]))
     {
         isEnemy = true;
     }
     return isEnemy;
 }
-bool isSpotSelfColor(int from, int to)
+bool Engine::isSpotSelfColor(int from, int to)
 {
-    if (Game::board[to][0] == '\0')
+    if (Chess::Game::board[to][0] == '\0')
     {
         return false;
     };
     return isSpotEnemy(from, to);
 }
-bool isWhiteChecked(int turnNum)
+bool Engine::isWhiteChecked()
 {
     int whiteKingPos = -1;
 
     // Find the position of the white king
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        if (Game::board[i] == "k")
+        if (Chess::Game::board[i] == "k")
         {
             whiteKingPos = i;
             break;
@@ -525,7 +528,7 @@ bool isWhiteChecked(int turnNum)
     // Iterate through the board to check if any black piece can attack the white king
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        if (isupper(Game::board[i][0])) // Check if the piece is black
+        if (isupper(Chess::Game::board[i][0])) // Check if the piece is black
         {
             std::vector<int> blackPieceMoves = getPossibleMoves(i, 1); // Assuming it's black's turn (turnNum % 2 == 1)
 
@@ -542,14 +545,14 @@ bool isWhiteChecked(int turnNum)
     return false;
 }
 
-bool isBlackChecked(int turnNum)
+bool isBlackChecked()
 {
     int blackKingPos = -1;
 
     // Find the position of the black king
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        if (Game::board[i] == "K")
+        if (Chess::Game::board[i] == "K")
         {
             blackKingPos = i;
             break;
@@ -566,7 +569,7 @@ bool isBlackChecked(int turnNum)
     // Iterate through the board to check if any white piece can attack the black king
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        if (islower(Game::board[i][0])) // Check if the piece is white
+        if (islower(Chess::Game::board[i][0])) // Check if the piece is white
         {
             std::vector<int> whitePieceMoves = getPossibleMoves(i, 0); // Assuming it's white's turn (turnNum % 2 == 0)
 

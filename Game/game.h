@@ -5,18 +5,26 @@
 #include <string>
 #include <cstring>
 using namespace std;
-
-class Game
+const int BOARD_SIZE = 64;
+namespace Chess
 {
-public:
-	static int turnNum;
-	static bool whitesTurn;
-	static bool showMode;
-	static bool ignoreRules;
-	static std::string board[BOARD_SIZE];
-	static std::string prevBoard[BOARD_SIZE];
-	static int convertMove(std::string pos);
-	static void makeMove(int from, int to);
-	static void init();
-	static void gameLoop();
+	class Game
+	{
+	public:
+		static int turnNum;
+		static bool whitesTurn;
+		static bool showMode;
+		static bool ignoreRules;
+		static std::string board[BOARD_SIZE];
+		static std::string prevBoard[BOARD_SIZE];
+		static int convertMove(std::string pos);
+		static void makeMove(int from, int to);
+		static void init();
+		static void gameLoop();
+		static void savePrevBoardState();
+		static void printCheckedStatus();
+		static void handleShowInput(const std::string &to);
+		static void handleIgnoreRulesInput();
+		static bool isValidMoveInput(int from, int to);
+	};
 };
