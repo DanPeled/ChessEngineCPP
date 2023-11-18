@@ -13,13 +13,13 @@ void Game::init()
 	ignoreRules = false;
 
 	std::string pieces = DEFAULT_BOARD;
-	initBoard(board, pieces);
-	printBoard(board, whitesTurn);
+	initBoard(pieces);
+	printBoard(whitesTurn);
 }
 void Game::makeMove(int from, int to)
 {
 	// validate move
-	if (validateMove(board, from, to, turnNum) || ignoreRules)
+	if (validateMove(from, to, turnNum) || ignoreRules)
 	{
 		// Backup the board state
 		for (int i = 0; i < BOARD_SIZE; ++i)
@@ -28,7 +28,7 @@ void Game::makeMove(int from, int to)
 		}
 
 		// Check if a piece is eaten
-		if (eatsPiece(board, from, to))
+		if (eatsPiece(from, to))
 		{
 			std::cout << "  " << getPieceName(board[from]) << " captures " << getPieceName(board[to]) << std::endl;
 			board[to] = "\0 ";
@@ -36,11 +36,11 @@ void Game::makeMove(int from, int to)
 		// Move the piece
 		switchArrayItems(board, from, to);
 		cout << endl;
-		if (isWhiteChecked(board, turnNum))
+		if (isWhiteChecked(turnNum))
 		{
 			cout << "	White king is checked!";
 		}
-		if (isBlackChecked(board, turnNum))
+		if (isBlackChecked(turnNum))
 		{
 			cout << "	Black king is checked!";
 		}
@@ -50,7 +50,7 @@ void Game::makeMove(int from, int to)
 		turnNum++;
 
 		// Print the updated board
-		printBoard(board, whitesTurn);
+		printBoard(whitesTurn);
 	}
 	else
 	{
@@ -107,8 +107,8 @@ void Game::gameLoop()
 		{
 			cin >> to;
 			int toPosIndex = convertMove(to);
-			std::vector<int> highlight = getPossibleMoves(board, toPosIndex, turnNum);
-			printBoard(board, whitesTurn, highlight);
+			std::vector<int> highlight = getPossibleMoves(toPosIndex, turnNum);
+			printBoard(whitesTurn, highlight);
 			continue;
 		}
 		if (from == "ignoreRules")
