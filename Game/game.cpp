@@ -1,5 +1,5 @@
 #include "game.h"
-using namespace CHess;
+using namespace Chess;
 #pragma region Static member initialization
 int Chess::Game::turnNum = 0;
 bool Chess::Game::whitesTurn = true;
@@ -19,14 +19,14 @@ void Chess::Game::init()
 
 	std::string pieces = Engine::DEFAULT_BOARD;
 	Engine::initBoard(pieces);
-	Engine::printBoard(whitesTurn);
+	Engine::printBoard();
 }
 
 // Make a move on the game board
 void Chess::Game::makeMove(int from, int to)
 {
-	// Validate the move or ignore rules if enabled
-	if (Engine::validateMove(from, to) || ignoreRules)
+	// Check if the move is legal using the isMoveLegal function
+	if (Engine::isMoveLegal(from, to) || ignoreRules)
 	{
 		savePrevBoardState();
 
@@ -48,14 +48,13 @@ void Chess::Game::makeMove(int from, int to)
 		turnNum++;
 
 		// Print the updated board
-		Engine::printBoard(whitesTurn);
+		Engine::printBoard();
 	}
 	else
 	{
 		std::cout << "  Invalid move." << std::endl;
 	}
 }
-
 // Convert user input position to 1D array index
 int Chess::Game::convertMove(std::string pos)
 {
@@ -84,7 +83,7 @@ void Chess::Game::gameLoop()
 		}
 
 		// Handle "show" command
-		if (from == "show")
+		else if (from == "show")
 		{
 			std::cin >> to;
 			handleShowInput(to);
@@ -92,12 +91,17 @@ void Chess::Game::gameLoop()
 		}
 
 		// Toggle ignoreRules flag
-		if (from == "ignoreRules")
+		else if (from == "ignoreRules")
 		{
 			handleIgnoreRulesInput();
 			continue;
 		}
-
+		else if (from == "clear")
+		{
+			system("cls");
+			Engine::printBoard();
+			continue;
+		}
 		// Get destination position
 		std::cin >> to;
 		std::cout << std::endl;
@@ -114,6 +118,7 @@ void Chess::Game::gameLoop()
 		else
 		{
 			std::cout << "  Invalid position entered." << std::endl;
+			continue;
 		}
 	}
 }
@@ -131,12 +136,12 @@ void Chess::Game::printCheckedStatus()
 {
 	std::cout << std::endl;
 
-	if (Engine::isWhiteChecked())
+	if (Chess::Engine::isWhiteChecked())
 	{
 		std::cout << "  White king is checked!";
 	}
 
-	if (Engine::isBlackChecked())
+	if (Chess::Engine::isBlackChecked())
 	{
 		std::cout << "  Black king is checked!";
 	}
@@ -161,8 +166,8 @@ void Chess::Game::handleIgnoreRulesInput()
 // Check if move positions are valid
 bool Chess::Game::isValidMoveInput(int from, int to)
 {
-	return inRange(from, 0, 64) &&
-		   inRange(to, 0, 64) &&
+	return inRange(from, 0, BOARD_SIZE) &&
+		   inRange(to, 0, BOARD_SIZE) &&
 		   from != -1 &&
 		   to != -1;
 }

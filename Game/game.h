@@ -4,6 +4,7 @@
 #include <cctype>
 #include <string>
 #include <cstring>
+#include <stdlib.h>
 using namespace std;
 const int BOARD_SIZE = 64;
 namespace Chess

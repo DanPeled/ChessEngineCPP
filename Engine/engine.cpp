@@ -25,7 +25,7 @@ void Engine::printBoard(bool whitesTurn, std::vector<int> highlighted)
             std::cout << " " << (i / 8) + 1 << "|";
         }
 
-        if (Chess::Game::board[i] == "")
+        if (Game::board[i] == "")
         {
             if (std::find(highlighted.begin(), highlighted.end(), i) != highlighted.end())
             {
@@ -62,10 +62,13 @@ void Engine::printBoard(bool whitesTurn, std::vector<int> highlighted)
         }
     }
 }
-void Engine::printBoard(bool whitesTurn)
+void Engine::printBoard(std::vector<int> highlighted)
 {
-    std::vector<int> highlighted;
-    Engine::printBoard(whitesTurn, highlighted);
+    Engine::printBoard(Game::whitesTurn, highlighted);
+}
+void Engine::printBoard()
+{
+    Engine::printBoard(Game::whitesTurn, {});
 }
 void Engine::initBoard(std::string pieces)
 {
@@ -102,7 +105,7 @@ void Engine::initBoard(std::string pieces)
         Chess::Game::board[boardIndex] = "";
     }
 }
-std::string getPieceType(std::string piece)
+std::string Engine::getPieceType(std::string piece)
 {
     std::string name = "Invalid";
     switch (toupper(piece[0]))
@@ -128,7 +131,7 @@ std::string getPieceType(std::string piece)
     }
     return name;
 }
-std::string getPieceName(std::string piece)
+std::string Engine::getPieceName(std::string piece)
 {
     if (piece.empty())
     {
@@ -140,11 +143,11 @@ std::string getPieceName(std::string piece)
 
     return prefix + name;
 }
-bool isSpotEmpty(int pos)
+bool Engine::isSpotEmpty(int pos)
 {
     return Chess::Game::board[pos][0] == '\0';
 }
-bool validateMove(int from, int to)
+bool Engine::validateMove(int from, int to)
 {
     std::vector<int> possibleMoves = getPossibleMoves(from, Chess::Game::turnNum);
     bool valid = true;
@@ -174,13 +177,13 @@ bool validateMove(int from, int to)
     return valid;
 }
 
-bool eatsPiece(int from, int to)
+bool Engine::eatsPiece(int from, int to)
 {
     char movedPiece = Chess::Game::board[from][0];
     char placedPos = Chess::Game::board[to][0];
     return (!isSpotEmpty(to));
 }
-std::vector<int> getPossibleMoves(int from, int turnNum)
+std::vector<int> Engine::getPossibleMoves(int from, int turnNum)
 {
     std::vector<int> possibleMoves;
     std::string piece = getPieceType(Chess::Game::board[from]);
@@ -307,7 +310,7 @@ std::vector<int> getPossibleMoves(int from, int turnNum)
     }
     return possibleMoves;
 }
-std::vector<int> generateRookMovements(int from)
+std::vector<int> Engine::generateRookMovements(int from)
 {
     std::vector<int> possibleMoves;
     int x = from % 8;
@@ -392,7 +395,7 @@ std::vector<int> generateRookMovements(int from)
     return possibleMoves;
 }
 
-std::vector<int> generateBishopMovements(int from)
+std::vector<int> Engine::generateBishopMovements(int from)
 {
     std::vector<int> possibleMoves;
 
@@ -506,12 +509,22 @@ bool Engine::isSpotSelfColor(int from, int to)
 }
 bool Engine::isWhiteChecked()
 {
+    return isWhiteChecked(Chess::Game::board);
+}
+
+bool Engine::isBlackChecked()
+{
+    return isBlackChecked(Chess::Game::board);
+}
+
+bool Engine::isWhiteChecked(std::string board[])
+{
     int whiteKingPos = -1;
 
     // Find the position of the white king
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        if (Chess::Game::board[i] == "k")
+        if (board[i] == "k")
         {
             whiteKingPos = i;
             break;
@@ -528,7 +541,7 @@ bool Engine::isWhiteChecked()
     // Iterate through the board to check if any black piece can attack the white king
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        if (isupper(Chess::Game::board[i][0])) // Check if the piece is black
+        if (isupper(board[i][0])) // Check if the piece is black
         {
             std::vector<int> blackPieceMoves = getPossibleMoves(i, 1); // Assuming it's black's turn (turnNum % 2 == 1)
 
@@ -545,14 +558,14 @@ bool Engine::isWhiteChecked()
     return false;
 }
 
-bool isBlackChecked()
+bool Engine::isBlackChecked(std::string board[])
 {
     int blackKingPos = -1;
 
     // Find the position of the black king
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        if (Chess::Game::board[i] == "K")
+        if (board[i] == "K")
         {
             blackKingPos = i;
             break;
@@ -569,7 +582,7 @@ bool isBlackChecked()
     // Iterate through the board to check if any white piece can attack the black king
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        if (islower(Chess::Game::board[i][0])) // Check if the piece is white
+        if (islower(board[i][0])) // Check if the piece is white
         {
             std::vector<int> whitePieceMoves = getPossibleMoves(i, 0); // Assuming it's white's turn (turnNum % 2 == 0)
 
@@ -585,10 +598,40 @@ bool isBlackChecked()
     // The black king is not in check
     return false;
 }
+
 void copyStringArray(const std::string source[], std::string destination[], int size)
 {
     for (int i = 0; i < size; ++i)
     {
         destination[i] = source[i];
     }
+}
+
+bool Engine::isMoveLegal(int from, int to)
+{
+    // Check basic move validity
+    if (!validateMove(from, to))
+    {
+        return false;
+    }
+
+    // Make a temporary copy of the board
+    std::string tempBoard[BOARD_SIZE];
+    copyStringArray(Game::board, tempBoard, BOARD_SIZE);
+
+    // Simulate the move on the temporary board
+    tempBoard[to] = tempBoard[from];
+    tempBoard[from] = "";
+
+    // Check if the move puts the player's own king in check
+    if (isupper(Game::board[from][0]) && isWhiteChecked(tempBoard))
+    {
+        return false;
+    }
+    else if (islower(Game::board[from][0]) && isBlackChecked(tempBoard))
+    {
+        return false;
+    }
+
+    return true;
 }
