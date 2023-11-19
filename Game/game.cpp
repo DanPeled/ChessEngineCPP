@@ -21,10 +21,13 @@ void Chess::Game::init()
 	Engine::initBoard(pieces);
 	Engine::printBoard();
 }
-
-// Make a move on the game board
+/// @brief Make a move on the game board
+/// @param from The from pos
+/// @param to The to pos
+/// @return Wheter there was a checkmate played
 bool Chess::Game::makeMove(int from, int to)
 {
+	// TODO: Add impossible to not prevent chess (idk how to do that) 
 	// Check if the move is legal using the isMoveLegal function
 	if (Engine::isMoveLegal(from, to) || ignoreRules)
 	{
@@ -55,7 +58,10 @@ bool Chess::Game::makeMove(int from, int to)
 	}
 	return checkForCheckmate();
 }
-// Convert user input position to 1D array index
+
+/// @brief Convert user input position to 1D array index
+/// @param pos 2D index
+/// @return The 1D index
 int Chess::Game::convertMove(std::string pos)
 {
 	char x = toupper(pos[1]);
@@ -108,6 +114,7 @@ void Chess::Game::gameLoop()
 		std::cout << std::endl;
 
 		// Convert positions to array indices
+
 		int fromPosIndex = convertMove(from);
 		int toPosIndex = convertMove(to);
 
