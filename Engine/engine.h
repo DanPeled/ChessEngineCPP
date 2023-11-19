@@ -61,6 +61,7 @@ namespace Chess
 
         // Additional board printing function
         static void printBoard();
+        static bool isCheckmate(bool isWhite);
     };
 }
 

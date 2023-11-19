@@ -19,7 +19,7 @@ namespace Chess
 		static std::string board[BOARD_SIZE];
 		static std::string prevBoard[BOARD_SIZE];
 		static int convertMove(std::string pos);
-		static void makeMove(int from, int to);
+		static bool makeMove(int from, int to);
 		static void init();
 		static void gameLoop();
 		static void savePrevBoardState();
@@ -27,5 +27,6 @@ namespace Chess
 		static void handleShowInput(const std::string &to);
 		static void handleIgnoreRulesInput();
 		static bool isValidMoveInput(int from, int to);
+		static bool checkForCheckmate();
 	};
 };

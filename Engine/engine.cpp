@@ -145,8 +145,9 @@ std::string Engine::getPieceName(std::string piece)
 }
 bool Engine::isSpotEmpty(int pos)
 {
-    return Chess::Game::board[pos][0] == '\0';
+    return Chess::Game::board[pos].empty();
 }
+
 bool Engine::validateMove(int from, int to)
 {
     std::vector<int> possibleMoves = getPossibleMoves(from, Chess::Game::turnNum);
@@ -235,11 +236,11 @@ std::vector<int> Engine::getPossibleMoves(int from, int turnNum)
             {
                 possibleMoves.push_back(from + 16);
             }
-            if (from + 9 < BOARD_SIZE && Engine::isSpotSelfColor(from, from + 9))
+            if (from + 9 < BOARD_SIZE && Engine::isSpotEnemy(from, from + 9))
             {
                 possibleMoves.push_back(from + 9);
             }
-            if (from + 7 < BOARD_SIZE && Engine::isSpotSelfColor(from, from + 7))
+            if (from + 7 < BOARD_SIZE && Engine::isSpotEnemy(from, from + 7))
             {
                 possibleMoves.push_back(from + 7);
             }
@@ -250,11 +251,11 @@ std::vector<int> Engine::getPossibleMoves(int from, int turnNum)
             {
                 possibleMoves.push_back(from - 8);
             }
-            if (from - 9 < BOARD_SIZE && Engine::isSpotSelfColor(from, from - 9))
+            if (from - 9 < BOARD_SIZE && Engine::isSpotEnemy(from, from - 9))
             {
                 possibleMoves.push_back(from - 9);
             }
-            if (from - 7 < BOARD_SIZE && Engine::isSpotSelfColor(from, from - 7))
+            if (from - 7 < BOARD_SIZE && Engine::isSpotEnemy(from, from - 7))
             {
                 possibleMoves.push_back(from - 7);
             }
@@ -298,7 +299,6 @@ std::vector<int> Engine::getPossibleMoves(int from, int turnNum)
             }
         }
     }
-
     else if (piece == Engine::Pieces::QUEEN)
     {
         std::vector<int> bishopMovements = generateBishopMovements(from);
@@ -310,6 +310,7 @@ std::vector<int> Engine::getPossibleMoves(int from, int turnNum)
     }
     return possibleMoves;
 }
+
 std::vector<int> Engine::generateRookMovements(int from)
 {
     std::vector<int> possibleMoves;
@@ -488,25 +489,20 @@ std::vector<T> Engine::combineVectors(std::vector<T> v1, std::vector<T> v2)
 
 bool Engine::isSpotEnemy(int from, int to)
 {
-    bool isEnemy = false;
-    if (isupper(Chess::Game::board[from][0]) && !isupper(Chess::Game::board[to][0]))
-    {
-        isEnemy = true;
-    }
-    else if (!isupper(Chess::Game::board[from][0]) && isupper(Chess::Game::board[to][0]))
-    {
-        isEnemy = true;
-    }
-    return isEnemy;
+    bool fromPieceColor = isupper(Chess::Game::board[from][0]);
+    bool toPieceColor = isupper(Chess::Game::board[to][0]);
+    // Check if the colors are different, indicating an enemy piece, and if the destination is not empty
+    return (fromPieceColor != toPieceColor) && !isSpotEmpty(to);
 }
 bool Engine::isSpotSelfColor(int from, int to)
 {
-    if (Chess::Game::board[to][0] == '\0')
-    {
-        return false;
-    };
-    return isSpotEnemy(from, to);
+    char fromPieceColor = Chess::Game::board[from][0];
+    char toPieceColor = Chess::Game::board[to][0];
+
+    // Check if the colors are the same, indicating the same player's piece, and if the destination is not empty
+    return (fromPieceColor == toPieceColor) && !isSpotEmpty(to);
 }
+
 bool Engine::isWhiteChecked()
 {
     return isWhiteChecked(Chess::Game::board);
@@ -634,4 +630,49 @@ bool Engine::isMoveLegal(int from, int to)
     }
 
     return true;
+}
+
+bool Engine::isCheckmate(bool isWhite)
+{
+    // Check if the king is in check
+    if (isWhite && isWhiteChecked())
+    {
+        // Check if there are no legal moves for the white king
+        for (int i = 0; i < BOARD_SIZE; i++)
+        {
+            if (isupper(Game::board[i][0]))
+            {
+                std::vector<int> moves = getPossibleMoves(i, 0);
+                for (int move : moves)
+                {
+                    if (isMoveLegal(i, move))
+                    {
+                        return false; // The king has a legal move
+                    }
+                }
+            }
+        }
+        return true; // No legal moves for the white king
+    }
+    else if (!isWhite == 1 && isBlackChecked())
+    {
+        // Check if there are no legal moves for the black king
+        for (int i = 0; i < BOARD_SIZE; i++)
+        {
+            if (islower(Game::board[i][0]))
+            {
+                std::vector<int> moves = getPossibleMoves(i, 1);
+                for (int move : moves)
+                {
+                    if (isMoveLegal(i, move))
+                    {
+                        return false; // The king has a legal move
+                    }
+                }
+            }
+        }
+        return true; // No legal moves for the black king
+    }
+
+    return false; // The king is not in check or there are legal moves
 }

@@ -23,7 +23,7 @@ void Chess::Game::init()
 }
 
 // Make a move on the game board
-void Chess::Game::makeMove(int from, int to)
+bool Chess::Game::makeMove(int from, int to)
 {
 	// Check if the move is legal using the isMoveLegal function
 	if (Engine::isMoveLegal(from, to) || ignoreRules)
@@ -46,7 +46,6 @@ void Chess::Game::makeMove(int from, int to)
 		// Switch turns and increment the turn number
 		whitesTurn = !whitesTurn;
 		turnNum++;
-
 		// Print the updated board
 		Engine::printBoard();
 	}
@@ -54,6 +53,7 @@ void Chess::Game::makeMove(int from, int to)
 	{
 		std::cout << "  Invalid move." << std::endl;
 	}
+	return checkForCheckmate();
 }
 // Convert user input position to 1D array index
 int Chess::Game::convertMove(std::string pos)
@@ -72,6 +72,7 @@ void Chess::Game::gameLoop()
 
 	while (true)
 	{
+		bool isCheckmate = false;
 		std::cout << std::endl
 				  << "   Enter Board Positions: ";
 		std::cin >> from;
@@ -113,12 +114,16 @@ void Chess::Game::gameLoop()
 		// Check if positions are valid and make the move
 		if (isValidMoveInput(fromPosIndex, toPosIndex))
 		{
-			makeMove(fromPosIndex, toPosIndex);
+			isCheckmate = makeMove(fromPosIndex, toPosIndex);
 		}
 		else
 		{
 			std::cout << "  Invalid position entered." << std::endl;
 			continue;
+		}
+		if (isCheckmate)
+		{
+			break;
 		}
 	}
 }
@@ -138,15 +143,16 @@ void Chess::Game::printCheckedStatus()
 
 	if (Chess::Engine::isWhiteChecked())
 	{
-		std::cout << "  White king is checked!";
+		std::cout << "  	White king is checked!";
 	}
 
 	if (Chess::Engine::isBlackChecked())
 	{
-		std::cout << "  Black king is checked!";
+		std::cout << "  	Black king is checked!";
 	}
 
-	std::cout << std::endl;
+	std::cout << std::endl
+			  << std::endl;
 }
 
 // Handle "show" command input
@@ -170,4 +176,24 @@ bool Chess::Game::isValidMoveInput(int from, int to)
 		   inRange(to, 0, BOARD_SIZE) &&
 		   from != -1 &&
 		   to != -1;
+}
+bool Chess::Game::checkForCheckmate()
+{
+	bool whitesCheckmate = Engine::isCheckmate(true);
+	bool blacksCheckmate = Engine::isCheckmate(false);
+	if (whitesCheckmate || blacksCheckmate)
+	{
+		std::cout << std::endl;
+		if (whitesCheckmate)
+		{
+			std::cout << "   Checkmate! Black player has won." << std::endl;
+			// Handle the end of the game, display results, etc.
+		}
+		else if (blacksCheckmate)
+		{
+			std::cout << "   Checkmate! White player has won." << std::endl;
+			// Handle the end of the game, display results, etc.
+		}
+	}
+	return whitesCheckmate || blacksCheckmate;
 }
