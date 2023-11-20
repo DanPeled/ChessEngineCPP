@@ -23,6 +23,7 @@ namespace Chess
         static void printBoard(std::vector<int> highlighted);
         static void initBoard(std::string pieces);
         static std::string getPieceName(std::string piece);
+        static bool getPieceColor(std::string piece);
         static bool isSpotEmpty(int pos);
         static bool validateMove(int from, int to);
         static bool eatsPiece(int from, int to);
@@ -54,7 +55,7 @@ namespace Chess
             const static std::string KING;
             const static std::string KNIGHT;
         };
-
+        static int getPawnPromotionRank(bool isWhite);
         // Movement generation functions
         static std::vector<int> generateRookMovements(int from);
         static std::vector<int> generateBishopMovements(int from);

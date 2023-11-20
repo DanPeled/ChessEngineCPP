@@ -27,7 +27,8 @@ void Chess::Game::init()
 /// @return Wheter there was a checkmate played
 bool Chess::Game::makeMove(int from, int to)
 {
-	// TODO: Add impossible to not prevent chess (idk how to do that) 
+	// TODO: Add impossible to not prevent chess (idk how to do that), pawn promotion
+
 	// Check if the move is legal using the isMoveLegal function
 	if (Engine::isMoveLegal(from, to) || ignoreRules)
 	{
@@ -42,6 +43,9 @@ bool Chess::Game::makeMove(int from, int to)
 
 		// Move the piece on the board
 		switchArrayItems(board, from, to);
+
+		// Pawn Promotion
+		handlePawnPromotion(from, to);
 
 		// Print the status of the kings
 		printCheckedStatus();
@@ -194,13 +198,28 @@ bool Chess::Game::checkForCheckmate()
 		if (whitesCheckmate)
 		{
 			std::cout << "   Checkmate! Black player has won." << std::endl;
-			// Handle the end of the game, display results, etc.
 		}
 		else if (blacksCheckmate)
 		{
 			std::cout << "   Checkmate! White player has won." << std::endl;
-			// Handle the end of the game, display results, etc.
 		}
 	}
 	return whitesCheckmate || blacksCheckmate;
+}
+
+void Game::handlePawnPromotion(int from, int to)
+{
+	std::string pieceType = Engine::getPieceType(Game::board[from]);
+	bool isWhitePieceMoved = !Engine::getPieceColor(Game::board[from]);
+	if (pieceType == Engine::Pieces::PAWN)
+	{
+		int x = to % 8;
+		int y = (to - x) / 8;
+		if (y == Engine::getPawnPromotionRank(isWhitePieceMoved))
+		{
+			Game::board[to] = isWhitePieceMoved ? "q" : "Q";
+			cout << std::endl
+				 << "	Pawn promoted to Queen";
+		}
+	}
 }

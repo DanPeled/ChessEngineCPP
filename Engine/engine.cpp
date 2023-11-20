@@ -131,6 +131,17 @@ std::string Engine::getPieceType(std::string piece)
     }
     return name;
 }
+/// @brief True => Black False => White
+/// @param piece 
+/// @return 
+bool Engine::getPieceColor(std::string piece)
+{
+    return (isupper(piece[0])) ? true : false;
+}
+int Engine::getPawnPromotionRank(bool isWhite)
+{
+    return isWhite ? 7 : 0;
+}
 std::string Engine::getPieceName(std::string piece)
 {
     if (piece.empty())
@@ -138,7 +149,7 @@ std::string Engine::getPieceName(std::string piece)
         return "Invalid";
     }
 
-    std::string prefix = (isupper(piece[0])) ? "Black " : "White ";
+    std::string prefix = getPieceColor(piece) ? "Black " : "White ";
     std::string name = getPieceType(piece);
 
     return prefix + name;

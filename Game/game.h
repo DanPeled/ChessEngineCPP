@@ -28,5 +28,6 @@ namespace Chess
 		static void handleIgnoreRulesInput();
 		static bool isValidMoveInput(int from, int to);
 		static bool checkForCheckmate();
+		static void handlePawnPromotion(int from, int to);
 	};
 };
